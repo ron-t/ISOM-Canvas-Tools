@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>List exporter</title>
+    <style>
+        body {
+            width: 300px;
+        }
+        
+        #status {
+            white-space: pre;
+            text-overflow: ellipsis;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .divheader {
+            font-weight: bold;
+        }
+        
+        label {
+            font-weight: normal;
+        }
+        
+        .label {
+            font-weight: normal;
+        }
+        
+        p {
+            margin-bottom: 0px;
+        }
+        
+        button {
+            display: block;
+        }
+    </style>
+
+    <script src="scripts/excel-builder.compiled.min.js"></script>
+    <script src="scripts/student-list-popup.js"></script>
+    <script src="scripts/jquery-2.2.0.min.js"></script>
+    <script src="scripts/util.js"></script>
+    
+</head>
+
+<body>
+    <p id="status">No course found on current page.</p>
+    
+    <div class="divheader" id="enrolmentHeading" hidden>
+        <p>Enrolments loaded</p>
+        <button id="enrolmentReport">Enrolment report</button>
+        <label id="enrolmentReportProcessingLabel" hidden>Processing enrolment report ...</label>
+    </div>
+    
+    <div class="divheader" id="sectionListHeading" hidden>
+        <p id="sectionListStatus">Loading Sections ...</p>
+    </div>
+    
+    <div class="divheader" id="groupCatListHeading" hidden>
+        <p id="groupCatListStatus">Loading Group Categories ...</p>
+    </div>
+
+</body>
+
+</html>
