@@ -1,28 +1,27 @@
-//Written by Ron Tiong, ISOM Department, University of Auckland Business School 2016.
+// Written by Ron Tiong, ISOM Department, University of Auckland Business School 2016.
 
-/*jslint
-    browser: true, devel: true
+/* globals
+    MutationObserver
 */
 
-var targets = document.getElementsByClassName('due_date_display');
-var DoW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const targets = document.getElementsByClassName('due_date_display')
+const DoW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-var observer = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
+const observer = new MutationObserver(function (mutations) {
+  mutations.forEach(function (mutation) {
+    observer.disconnect()
 
-        observer.disconnect();
-        
-        var date = new Date(Date.parse(mutation.target.textContent + ' ' + (new Date()).getFullYear()));
-        var dayOfWeek = DoW[date.getDay()];
-        
-        mutation.target.textContent = dayOfWeek + ' ' + mutation.target.textContent;
-    });
-});
+    const date = new Date(Date.parse(mutation.target.textContent + ' ' + (new Date()).getFullYear()))
+    const dayOfWeek = DoW[date.getDay()]
 
-for (var i = 0; i < targets.length; i++) {
-    observer.observe(targets[i], {
-        attributes: false,
-        childList: true,
-        characterData: false
-    });
+    mutation.target.textContent = dayOfWeek + ' ' + mutation.target.textContent
+  })
+})
+
+for (let i = 0; i < targets.length; i++) {
+  observer.observe(targets[i], {
+    attributes: false,
+    childList: true,
+    characterData: false
+  })
 }
