@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // function from https://developer.chrome.com/extensions/getstarted
 function getCurrentTabUrl (callback) {
-  var queryInfo = {
+  let queryInfo = {
     active: true,
     windowId: chrome.windows.WINDOW_ID_CURRENT
   }
@@ -40,8 +40,8 @@ function getCurrentTabUrl (callback) {
 function populateCourseLists (url) {
   // find course number and host from current url
 
-  var roleXhr,
-    RegExResults
+  let roleXhr
+  let RegExResults
 
   RegExResults = /(https:\/\/.+)\/courses\/(\d+)(\/.+)?/.exec(url)
 
@@ -68,16 +68,16 @@ function populateCourseLists (url) {
 function proceedIfStaff () {
   // 'this' is the roleXhr
   if (this.readyState === 4 && this.status === 200) {
-    var json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+    let json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
     json = JSON.parse(json[1])
 
     if (Util.hasTeacherEnrolment(json)) {
-      var enrolmentHeading,
-        enrolmentReportButton,
-        sectionListHeading,
-        sectionsXhr,
-        groupCatXhr,
-        groupCatListHeading
+      let enrolmentHeading
+      let enrolmentReportButton
+      let sectionListHeading
+      let sectionsXhr
+      let groupCatXhr
+      let groupCatListHeading
 
       // unhide enrolment report heading
       enrolmentHeading = document.getElementById('enrolmentHeading')
@@ -134,18 +134,18 @@ function getEnrolments (url, state, enrolmentsList) {
   try {
     pending['enrolment'] += 1
 
-    var enrolmentXhr = new XMLHttpRequest()
+    let enrolmentXhr = new XMLHttpRequest()
     enrolmentXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is enrolmentXhr
       if (this.readyState === 4 && this.status === 200) {
-        var enrolmentJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        var enrolments = JSON.parse(enrolmentJson[1])
+        let enrolmentJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        let enrolments = JSON.parse(enrolmentJson[1])
 
         if (enrolments.length > 0) {
           Array.prototype.push.apply(enrolmentsList, enrolments)
         }
 
-        var next = Util.nextURL(this.getResponseHeader('Link'))
+        let next = Util.nextURL(this.getResponseHeader('Link'))
         if (next) {
           getEnrolments(next, state, enrolmentsList)
         }
@@ -173,7 +173,7 @@ function getEnrolments (url, state, enrolmentsList) {
 }
 
 function processEnrolments (enrolmentsList) {
-  var dataRows
+  let dataRows
   let sectionXhr
   let json
   let sections
@@ -231,7 +231,7 @@ function processEnrolments (enrolmentsList) {
 
   exportData(dataRows, Util.getTimestamp() + '-enrolment-report')
 
-  var label = document.getElementById('enrolmentReportProcessingLabel')
+  let label = document.getElementById('enrolmentReportProcessingLabel')
   label.hidden = 'hidden'
 }
 
@@ -239,7 +239,7 @@ function appendSections () {
   // 'this' is the sectionsXhr
 
   if (this.readyState === 4 && this.status === 200) {
-    var json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+    let json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
     json = JSON.parse(json[1])
 
     generateSectionList(json)
@@ -264,11 +264,11 @@ function generateSectionList (sections) {
 
   sections.forEach(function (section) {
     if (section.students.length > 0) {
-      var newbutton = document.createElement('button')
+      let newbutton = document.createElement('button')
       newbutton.textContent = section.name
       newbutton.addEventListener('click', trackButtonClick)
       newbutton.addEventListener('click', function () {
-        var dataRows = createSectionData(section)
+        let dataRows = createSectionData(section)
         exportData(dataRows, section.name)
       })
 
@@ -297,7 +297,7 @@ function renderStatus (id, statusText) {
 }
 
 function createSectionDataSpecifyHeader (section, withHeader) {
-  var dataRows = []
+  let dataRows = []
 
   if (withHeader) {
     if (EXPORT_FORMAT === 'tsv') {
@@ -325,7 +325,7 @@ function createSectionData (section) {
 function appendGroupCategories () {
   // 'this' is the groupCatXhr
   if (this.readyState === 4 && this.status === 200) {
-    var json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+    let json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
 
     json = JSON.parse(json[1])
 
@@ -334,7 +334,7 @@ function appendGroupCategories () {
     })
 
     json.forEach(function (groupCat) {
-      var label = document.createElement('span')
+      let label = document.createElement('span')
       label.className = 'label'
       label.appendChild(document.createTextNode('Processing ' + groupCat.name + ' ...'))
       label.style.display = 'none'
@@ -342,19 +342,19 @@ function appendGroupCategories () {
 
       pending['label' + groupCat.id] = label.id
 
-      var newbutton = document.createElement('button')
+      let newbutton = document.createElement('button')
       newbutton.textContent = groupCat.name
       newbutton.addEventListener('click', trackButtonClick)
       newbutton.addEventListener('click', function () {
         generateGroupList(groupCat)
       })
 
-      var div = document.createElement('div')
+      let div = document.createElement('div')
 
       div.appendChild(newbutton)
       div.appendChild(label)
 
-      var groupCatListHeading = document.getElementById('groupCatListHeading')
+      let groupCatListHeading = document.getElementById('groupCatListHeading')
       groupCatListHeading.appendChild(div)
     })
 
@@ -364,10 +364,10 @@ function appendGroupCategories () {
 
 function generateGroupList (groupCat) {
   // get all groups
-  var label = document.getElementById(pending['label' + groupCat.id])
+  let label = document.getElementById(pending['label' + groupCat.id])
   label.style.display = 'inline'
 
-  var url = HOST + '/api/v1/group_categories/' + groupCat.id + '/groups?per_page=100'
+  let url = HOST + '/api/v1/group_categories/' + groupCat.id + '/groups?per_page=100'
   pending['group' + groupCat.id] = 0
   pending['name' + groupCat.id] = groupCat.name
 
@@ -378,18 +378,18 @@ function getGroups (url, groupCat, groupsList) {
   try {
     pending['group' + groupCat.id] += 1
 
-    var groupXhr = new XMLHttpRequest()
+    let groupXhr = new XMLHttpRequest()
     groupXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is groupXhr
       if (this.readyState === 4 && this.status === 200) {
-        var groupsJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        var groups = JSON.parse(groupsJson[1])
+        let groupsJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        let groups = JSON.parse(groupsJson[1])
 
         if (groups.length > 0) {
           Array.prototype.push.apply(groupsList, groups)
         }
 
-        var next = Util.nextURL(this.getResponseHeader('Link'))
+        let next = Util.nextURL(this.getResponseHeader('Link'))
         if (next) {
           getGroups(next, groupCat, groupsList)
         }
@@ -411,9 +411,9 @@ function getGroups (url, groupCat, groupsList) {
 function processGroups (groupCat, groupsList) {
   // go through each group in groupsList and get members
 
-  var label,
-    dataRows,
-    url
+  let label
+  let dataRows
+  let url
 
   if (groupsList.length > 0) {
     if (EXPORT_FORMAT === 'tsv') {
@@ -439,12 +439,12 @@ function getMembers (url, group, dataRows) {
   try {
     pending['member' + group.group_category_id] += 1
 
-    var memberXhr = new XMLHttpRequest()
+    let memberXhr = new XMLHttpRequest()
     memberXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is memberXhr
       if (this.readyState === 4 && this.status === 200) {
-        var membersJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        var members = JSON.parse(membersJson[1])
+        let membersJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        let members = JSON.parse(membersJson[1])
 
         if (members.length > 0) {
           members.forEach(function (member) {
@@ -460,7 +460,7 @@ function getMembers (url, group, dataRows) {
           })
         }
 
-        var next = Util.nextURL(this.getResponseHeader('Link'))
+        let next = Util.nextURL(this.getResponseHeader('Link'))
         if (next) {
           getMembers(next, group, dataRows)
         }
@@ -470,7 +470,7 @@ function getMembers (url, group, dataRows) {
           exportData(dataRows, pending['name' + group.group_category_id])
 
           // remove 'processing...' label
-          var label = document.getElementById(pending['label' + group.group_category_id])
+          let label = document.getElementById(pending['label' + group.group_category_id])
           label.style.display = 'none'
         }
       }
@@ -485,18 +485,18 @@ function getMembers (url, group, dataRows) {
 
 function exportData (dataRows, filename) {
   if (EXPORT_FORMAT === 'tsv') {
-    var tsvString = dataRows.join('\r\n')
+    let tsvString = dataRows.join('\r\n')
 
-    var blob = new Blob([tsvString], {
+    let blob = new Blob([tsvString], {
       type: 'text/plain'
     })
 
-    var href = URL.createObjectURL(blob)
+    let href = URL.createObjectURL(blob)
 
     downloadReport(href, filename)
   } else if (EXPORT_FORMAT === 'xlsx') {
-    var workbook = ExcelBuilder.Builder.createWorkbook()
-    var list = workbook.createWorksheet({
+    let workbook = ExcelBuilder.Builder.createWorkbook()
+    let list = workbook.createWorksheet({
       name: 'list'
     })
 
@@ -504,7 +504,7 @@ function exportData (dataRows, filename) {
     workbook.addWorksheet(list)
 
     ExcelBuilder.Builder.createFile(workbook, { type: 'blob' }).then(function (data) {
-      var href = URL.createObjectURL(data)
+      let href = URL.createObjectURL(data)
 
       downloadReport(href, filename)
     })
@@ -512,7 +512,7 @@ function exportData (dataRows, filename) {
 }
 
 function downloadReport (href, filename) {
-  var a = document.createElement('a')
+  let a = document.createElement('a')
   a.href = href
   a.target = '_blank'
   a.download = filename + '.' + EXPORT_FORMAT
