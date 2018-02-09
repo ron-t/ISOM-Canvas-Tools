@@ -263,16 +263,16 @@ function generateSectionList (sections) {
   }
 
   sections.forEach(function (section) {
-    if (section.students.length > 0) {
-      let newbutton = document.createElement('button')
-      newbutton.textContent = section.name
-      newbutton.addEventListener('click', trackButtonClick)
-      newbutton.addEventListener('click', function () {
+    if (section.students && section.students.length > 0) {
+      let newButton = document.createElement('button')
+      newButton.textContent = section.name
+      newButton.addEventListener('click', trackButtonClick)
+      newButton.addEventListener('click', function () {
         let dataRows = createSectionData(section)
         exportData(dataRows, section.name)
       })
 
-      sectionListHeading.appendChild(newbutton)
+      sectionListHeading.appendChild(newButton)
 
       // accumulate array for allSectionsData
       allSectionsData = allSectionsData.concat(createSectionDataSpecifyHeader(section, false))
@@ -309,9 +309,9 @@ function createSectionDataSpecifyHeader (section, withHeader) {
 
   section.students.forEach(function (student) {
     if (EXPORT_FORMAT === 'tsv') {
-      dataRows.push([[section.name, student.name, student.sortable_name, student.sis_user_id, student.sis_login_id, student.email].join('\t')])
+      dataRows.push([[section.name, student.name, student.sortable_name, student.sis_user_id, student.login_id, student.email].join('\t')])
     } else if (EXPORT_FORMAT === 'xlsx') {
-      dataRows.push([section.name, student.name, student.sortable_name, student.sis_user_id, student.sis_login_id, student.email])
+      dataRows.push([section.name, student.name, student.sortable_name, student.sis_user_id, student.login_id, student.email])
     }
   })
 

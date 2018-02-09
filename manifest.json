@@ -4,7 +4,7 @@
     "name": "ISOM Canvas Tools",
     "short_name": "ICanTools",
     "description": "Provides extra functions on University of Auckland's Canvas environment.",
-    "version": "0.92",
+    "version": "0.93",
     "icons": {
         "128": "images/icon.png"
     },
