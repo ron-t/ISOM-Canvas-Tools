@@ -4,7 +4,7 @@
     "name": "ISOM Canvas Tools",
     "short_name": "ICanTools",
     "description": "Provides extra functions on University of Auckland's Canvas environment.",
-    "version": "0.93",
+    "version": "0.94",
     "icons": {
         "128": "images/icon.png"
     },
@@ -28,7 +28,6 @@
             ],
             "js": [
                  "scripts/jquery-2.2.0.min.js"
-                ,"scripts/analytics.js"
                 ,"scripts/excel-builder.compiled.min.js"
                 ,"scripts/util.js"
                 ,"scripts/users-content-script.js"]
@@ -62,12 +61,11 @@
     },
 
     "permissions": [
-        "https://ajax.googleapis.com/",
-        "https://canvas.auckland.ac.nz/*",
+        
         "declarativeContent",
         "activeTab",
         "storage"
         ],
 
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'"
+    "content_security_policy": "script-src 'self'; object-src 'self'"
 }
