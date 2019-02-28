@@ -2,7 +2,7 @@
 // Only the first 100 group categories (aka group sets) will be displayed.
 
 /* globals
-    chrome, ExcelBuilder, ga, Util, XMLHttpRequest, Blob, URL
+    chrome, ExcelBuilder, Util, XMLHttpRequest, Blob, URL
 */
 
 let EXPORT_FORMAT
@@ -22,16 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
   getCurrentTabUrl(populateCourseLists)
 })
 
-// function from https://developer.chrome.com/extensions/getstarted
 function getCurrentTabUrl (callback) {
-  let queryInfo = {
+  const queryInfo = {
     active: true,
     windowId: chrome.windows.WINDOW_ID_CURRENT
   }
 
   chrome.tabs.query(queryInfo, function (tabs) {
-    let tab = tabs[0]
-    let url = tab.url
+    const tab = tabs[0]
+    const url = tab.url
 
     callback(url)
   })
@@ -84,7 +83,6 @@ function proceedIfStaff () {
       enrolmentHeading.hidden = null
 
       enrolmentReportButton = document.getElementById('enrolmentReport')
-      enrolmentReportButton.addEventListener('click', trackButtonClick)
       enrolmentReportButton.addEventListener('click', enrolmentReportButtonClick)
 
       // unhide section list heading
@@ -113,20 +111,17 @@ function proceedIfStaff () {
 }
 
 function enrolmentReportButtonClick () {
-  let label
-  let url
-  let state
-  let enrolmentsList = []
+  const enrolmentsList = []
 
   // show 'Processing...' label
-  label = document.getElementById('enrolmentReportProcessingLabel')
+  const label = document.getElementById('enrolmentReportProcessingLabel')
   label.hidden = null
 
   pending['enrolment'] = 0
 
   // get active enrolments first
-  state = 'active'
-  url = HOST + '/api/v1/courses/' + COURSE_ID + '/enrollments?type[]=StudentEnrollment&state[]=' + state + '&per_page=100'
+  const state = 'active'
+  const url = HOST + '/api/v1/courses/' + COURSE_ID + '/enrollments?type[]=StudentEnrollment&state[]=' + state + '&per_page=100'
   getEnrolments(url, state, enrolmentsList)
 }
 
@@ -138,14 +133,14 @@ function getEnrolments (url, state, enrolmentsList) {
     enrolmentXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is enrolmentXhr
       if (this.readyState === 4 && this.status === 200) {
-        let enrolmentJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        let enrolments = JSON.parse(enrolmentJson[1])
+        const enrolmentJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        const enrolments = JSON.parse(enrolmentJson[1])
 
         if (enrolments.length > 0) {
           Array.prototype.push.apply(enrolmentsList, enrolments)
         }
 
-        let next = Util.nextURL(this.getResponseHeader('Link'))
+        const next = Util.nextURL(this.getResponseHeader('Link'))
         if (next) {
           getEnrolments(next, state, enrolmentsList)
         }
@@ -155,9 +150,9 @@ function getEnrolments (url, state, enrolmentsList) {
         if (pending['enrolment'] <= 0) {
           if (state === 'active') {
             // after active enrolments are complete, get deleted enrolments
-            state = 'deleted'
-            url = HOST + '/api/v1/courses/' + COURSE_ID + '/enrollments?type[]=StudentEnrollment&state[]=' + state + '&per_page=100'
-            getEnrolments(url, state, enrolmentsList)
+            const stateToGet = 'deleted'
+            url = HOST + '/api/v1/courses/' + COURSE_ID + '/enrollments?type[]=StudentEnrollment&state[]=' + stateToGet + '&per_page=100'
+            getEnrolments(url, stateToGet, enrolmentsList)
           } else { // state is deleted (and active enrolments have already been retrieved)
             processEnrolments(enrolmentsList)
           }
@@ -173,24 +168,21 @@ function getEnrolments (url, state, enrolmentsList) {
 }
 
 function processEnrolments (enrolmentsList) {
-  let dataRows
-  let sectionXhr
-  let json
-  let sections
-  let sectionsLookup = {}
+  const sectionsLookup = {}
 
   // get section names synchronously
-  sectionXhr = new XMLHttpRequest()
+  const sectionXhr = new XMLHttpRequest()
   sectionXhr.open('GET', HOST + '/api/v1/courses/' + COURSE_ID + '/sections?per_page=100', false)
   sectionXhr.send()
 
-  json = /(?:while\(1\);)?(.+)/.exec(sectionXhr.responseText)
-  sections = JSON.parse(json[1])
+  const json = /(?:while\(1\);)?(.+)/.exec(sectionXhr.responseText)
+  const sections = JSON.parse(json[1])
 
   sections.forEach(function (s) {
     sectionsLookup[s.id] = s
   })
 
+  let dataRows
   if (EXPORT_FORMAT === 'tsv') {
     dataRows = [['state', 'created_at', 'updated_at', 'canvas user id', 'student id', 'student name', 'student sortable name', 'student username', 'student e-mail', 'section id', 'section name'].join('\t')]
   } else if (EXPORT_FORMAT === 'xlsx') {
@@ -231,7 +223,7 @@ function processEnrolments (enrolmentsList) {
 
   exportData(dataRows, Util.getTimestamp() + '-enrolment-report')
 
-  let label = document.getElementById('enrolmentReportProcessingLabel')
+  const label = document.getElementById('enrolmentReportProcessingLabel')
   label.hidden = 'hidden'
 }
 
@@ -247,15 +239,14 @@ function appendSections () {
 }
 
 function generateSectionList (sections) {
-  let allSectionsData
-  let allButton
-  let sectionListHeading = document.getElementById('sectionListHeading')
+  const sectionListHeading = document.getElementById('sectionListHeading')
 
   // sort alphabetically ascending by name
   sections.sort(function (a, b) {
     return (a.name > b.name) - (a.name < b.name)
   })
 
+  let allSectionsData
   if (EXPORT_FORMAT === 'tsv') {
     allSectionsData = [['section name', 'student name', 'student sortable name', 'student id', 'student username', 'student e-mail'].join('\t')]
   } else if (EXPORT_FORMAT === 'xlsx') {
@@ -264,11 +255,10 @@ function generateSectionList (sections) {
 
   sections.forEach(function (section) {
     if (section.students && section.students.length > 0) {
-      let newButton = document.createElement('button')
+      const newButton = document.createElement('button')
       newButton.textContent = section.name
-      newButton.addEventListener('click', trackButtonClick)
       newButton.addEventListener('click', function () {
-        let dataRows = createSectionData(section)
+        const dataRows = createSectionData(section)
         exportData(dataRows, section.name)
       })
 
@@ -280,9 +270,8 @@ function generateSectionList (sections) {
   })
 
   // add button for all sections
-  allButton = document.createElement('button')
+  const allButton = document.createElement('button')
   allButton.textContent = 'ALL-SECTIONS'
-  allButton.addEventListener('click', trackButtonClick)
   allButton.addEventListener('click', function () {
     exportData(allSectionsData, 'ALL-SECTIONS')
   })
@@ -291,14 +280,12 @@ function generateSectionList (sections) {
   renderStatus('sectionListStatus', 'Sections loaded')
 }
 
-// function from https://developer.chrome.com/extensions/getstarted
 function renderStatus (id, statusText) {
   document.getElementById(id).textContent = statusText
 }
 
 function createSectionDataSpecifyHeader (section, withHeader) {
   let dataRows = []
-
   if (withHeader) {
     if (EXPORT_FORMAT === 'tsv') {
       dataRows = [['section name', 'student name', 'student sortable name', 'student id', 'student username', 'student e-mail'].join('\t')]
@@ -342,19 +329,18 @@ function appendGroupCategories () {
 
       pending['label' + groupCat.id] = label.id
 
-      let newbutton = document.createElement('button')
-      newbutton.textContent = groupCat.name
-      newbutton.addEventListener('click', trackButtonClick)
-      newbutton.addEventListener('click', function () {
+      const newButton = document.createElement('button')
+      newButton.textContent = groupCat.name
+      newButton.addEventListener('click', function () {
         generateGroupList(groupCat)
       })
 
-      let div = document.createElement('div')
+      const div = document.createElement('div')
 
-      div.appendChild(newbutton)
+      div.appendChild(newButton)
       div.appendChild(label)
 
-      let groupCatListHeading = document.getElementById('groupCatListHeading')
+      const groupCatListHeading = document.getElementById('groupCatListHeading')
       groupCatListHeading.appendChild(div)
     })
 
@@ -364,10 +350,10 @@ function appendGroupCategories () {
 
 function generateGroupList (groupCat) {
   // get all groups
-  let label = document.getElementById(pending['label' + groupCat.id])
+  const label = document.getElementById(pending['label' + groupCat.id])
   label.style.display = 'inline'
 
-  let url = HOST + '/api/v1/group_categories/' + groupCat.id + '/groups?per_page=100'
+  const url = HOST + '/api/v1/group_categories/' + groupCat.id + '/groups?per_page=100'
   pending['group' + groupCat.id] = 0
   pending['name' + groupCat.id] = groupCat.name
 
@@ -378,12 +364,12 @@ function getGroups (url, groupCat, groupsList) {
   try {
     pending['group' + groupCat.id] += 1
 
-    let groupXhr = new XMLHttpRequest()
+    const groupXhr = new XMLHttpRequest()
     groupXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is groupXhr
       if (this.readyState === 4 && this.status === 200) {
-        let groupsJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        let groups = JSON.parse(groupsJson[1])
+        const groupsJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        const groups = JSON.parse(groupsJson[1])
 
         if (groups.length > 0) {
           Array.prototype.push.apply(groupsList, groups)
@@ -411,10 +397,7 @@ function getGroups (url, groupCat, groupsList) {
 function processGroups (groupCat, groupsList) {
   // go through each group in groupsList and get members
 
-  let label
   let dataRows
-  let url
-
   if (groupsList.length > 0) {
     if (EXPORT_FORMAT === 'tsv') {
       dataRows = [['group name', 'student name', 'student sortable name', 'student id', 'student username', 'student e-mail'].join('\t')]
@@ -425,12 +408,12 @@ function processGroups (groupCat, groupsList) {
     pending['member' + groupCat.id] = 0
 
     groupsList.forEach(function (group) {
-      url = HOST + '/api/v1/groups/' + group.id + '/users?include[]=email&per_page=100'
+      const url = HOST + '/api/v1/groups/' + group.id + '/users?include[]=email&per_page=100'
 
       getMembers(url, group, dataRows)
     })
   } else {
-    label = document.getElementById(pending['label' + groupCat.id])
+    const label = document.getElementById(pending['label' + groupCat.id])
     label.textContent = '(Contains no groups)'
   }
 }
@@ -439,12 +422,12 @@ function getMembers (url, group, dataRows) {
   try {
     pending['member' + group.group_category_id] += 1
 
-    let memberXhr = new XMLHttpRequest()
+    const memberXhr = new XMLHttpRequest()
     memberXhr.onreadystatechange = function processGroupResponse () {
       // 'this' is memberXhr
       if (this.readyState === 4 && this.status === 200) {
-        let membersJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
-        let members = JSON.parse(membersJson[1])
+        const membersJson = /(?:while\(1\);)?(.+)/.exec(this.responseText)
+        const members = JSON.parse(membersJson[1])
 
         if (members.length > 0) {
           members.forEach(function (member) {
@@ -470,7 +453,7 @@ function getMembers (url, group, dataRows) {
           exportData(dataRows, pending['name' + group.group_category_id])
 
           // remove 'processing...' label
-          let label = document.getElementById(pending['label' + group.group_category_id])
+          const label = document.getElementById(pending['label' + group.group_category_id])
           label.style.display = 'none'
         }
       }
@@ -485,18 +468,18 @@ function getMembers (url, group, dataRows) {
 
 function exportData (dataRows, filename) {
   if (EXPORT_FORMAT === 'tsv') {
-    let tsvString = dataRows.join('\r\n')
+    const tsvString = dataRows.join('\r\n')
 
-    let blob = new Blob([tsvString], {
+    const blob = new Blob([tsvString], {
       type: 'text/plain'
     })
 
-    let href = URL.createObjectURL(blob)
+    const href = URL.createObjectURL(blob)
 
     downloadReport(href, filename)
   } else if (EXPORT_FORMAT === 'xlsx') {
-    let workbook = ExcelBuilder.Builder.createWorkbook()
-    let list = workbook.createWorksheet({
+    const workbook = ExcelBuilder.Builder.createWorkbook()
+    const list = workbook.createWorksheet({
       name: 'list'
     })
 
@@ -504,7 +487,7 @@ function exportData (dataRows, filename) {
     workbook.addWorksheet(list)
 
     ExcelBuilder.Builder.createFile(workbook, { type: 'blob' }).then(function (data) {
-      let href = URL.createObjectURL(data)
+      const href = URL.createObjectURL(data)
 
       downloadReport(href, filename)
     })
@@ -512,7 +495,7 @@ function exportData (dataRows, filename) {
 }
 
 function downloadReport (href, filename) {
-  let a = document.createElement('a')
+  const a = document.createElement('a')
   a.href = href
   a.target = '_blank'
   a.download = filename + '.' + EXPORT_FORMAT
@@ -520,28 +503,3 @@ function downloadReport (href, filename) {
   document.body.appendChild(a)
   a.click()
 }
-
-/** Google analytics code start **/
-/* eslint-disable */
-(function (i, s, o, g, r, a, m) {
-  'use strict'
-  i['GoogleAnalyticsObject'] = r
-  i[r] = i[r] || function () {
-    (i[r].q = i[r].q || []).push(arguments)
-  }, i[r].l = 1 * new Date()
-  a = s.createElement(o),
-  m = s.getElementsByTagName(o)[0]
-  a.async = 1
-  a.src = g
-  m.parentNode.insertBefore(a, m)
-})(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga')
-/* eslint-enable */
-
-ga('create', 'UA-72936301-1', 'auto')
-ga('set', 'checkProtocolTask', null) // Disable file protocol checking.
-ga('send', 'pageview', '/studentListPopup.html')
-
-function trackButtonClick (e) {
-  ga('send', 'event', 'StudentList', 'Download', e.target.innerText)
-}
-/** Google analytics code end **/

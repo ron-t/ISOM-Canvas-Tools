@@ -2,7 +2,7 @@
 // Some code from the Canvancement project (https://github.com/jamesjonesmath/canvancement) is used
 
 /* globals
-    chrome, ga, ExcelBuilder, Util, XMLHttpRequest, XPathResult, $, Blob, URL
+    chrome, ExcelBuilder, Util, XMLHttpRequest, XPathResult, $, Blob, URL
 */
 
 let courseId = -1
@@ -35,36 +35,44 @@ function addAccessReportButton () {
 }
 
 function proceedIfStaff () {
-  // 'this' is the roleXhr
+  // "this" is the roleXhr object
   if (this.readyState === 4 && this.status === 200) {
     let json = /(?:while\(1\);)?(.+)/.exec(this.responseText)
     json = JSON.parse(json[1])
 
+    const notice = document.createElement('a')
+    notice.className = 'Button Button--warning'
+    const i = document.createElement('i')
+    i.className = 'icon-analytics'
+    notice.appendChild(i)
+    notice.appendChild(document.createTextNode(` Download access reports from UoA Toolbox`))
+    notice.href = `external_tools/6950`
+    notice.target = '_blank'
+
     if (Util.hasTeacherEnrolment(json)) {
       const status = document.createElement('div')
-      status.id = 'accessReportstatus'
+      status.id = 'accessReportStatus'
 
       const button = document.createElement('a')
       button.id = 'accessReportButton'
-      button.title = 'Button added by ISOM Canvas Tool'
-      button.className = 'btn button-sidebar-wide'
+      button.title = 'Use the UoA Toolbox instead!'
+
+      button.className = 'Button Button--secondary'
+      button.style = 'font-size: x-small;'
       button.addEventListener('click', accessReport)
 
-      const i = document.createElement('i')
-      i.className = 'icon-analytics'
-
-      button.appendChild(i)
-      button.appendChild(document.createTextNode(' Download Access Report'))
+      button.appendChild(document.createTextNode('Download Access Report using ISOM Tool'))
       button.appendChild(status)
 
       const menuHeader = document.evaluate("//div[@id='people-options']", document.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
       menuHeader.appendChild(button)
+      menuHeader.appendChild(notice)
     }
   }
 }
 
 function accessReport () {
-  document.getElementById('accessReportstatus').textContent = 'Generating...'
+  document.getElementById('accessReportStatus').textContent = 'Generating...'
 
   const url = '/api/v1/courses/' + courseId + '/users?enrollment_type[]=student&per_page=100'
 
@@ -82,7 +90,7 @@ function getStudents (courseId, url) {
       }
       userCount += udata.length
       if (userCount === 0) { // there are no student accesses
-        document.getElementById('accessReportstatus').textContent = 'No accesses found'
+        document.getElementById('accessReportStatus').textContent = 'No accesses found'
         return
       }
       if (url) {
@@ -97,9 +105,7 @@ function getStudents (courseId, url) {
       throw new Error('Failed to load list of students')
     })
   } catch (e) {
-    ga('send', 'event', 'AccessReport', 'Error', e)
-
-    document.getElementById('accessReportstatus').textContent = ''
+    document.getElementById('accessReportStatus').textContent = ''
     Util.errorHandler(e)
   }
 }
@@ -144,9 +150,7 @@ function getAccesses (courseId, url) {
       }
     })
   } catch (e) {
-    ga('send', 'event', 'AccessReport', 'Error', e)
-
-    document.getElementById('accessReportstatus').textContent = ''
+    document.getElementById('accessReportStatus').textContent = ''
     Util.errorHandler(e)
   }
 }
@@ -163,9 +167,7 @@ function getCourseId () {
       throw new Error('Unable to detect Course ID')
     }
   } catch (e) {
-    ga('send', 'event', 'AccessReport', 'Error', e)
-
-    document.getElementById('accessReportstatus').textContent = ''
+    document.getElementById('accessReportStatus').textContent = ''
     Util.errorHandler(e)
   }
   return courseId
@@ -173,11 +175,10 @@ function getCourseId () {
 
 function makeReport () {
   try {
-    let csv = createCSV() // and tsv
-    ga('send', 'event', 'AccessReport', 'Download', 'Users: ' + userCount + '; Accesses: ' + accessData.length)
+    const csv = createCSV() // and tsv
 
     if (csv) {
-      let href = ''
+      let href
       let blob
 
       if (EXPORT_FORMAT === TSV) {
@@ -208,9 +209,7 @@ function makeReport () {
       throw new Error('Problem creating report')
     }
   } catch (e) {
-    ga('send', 'event', 'AccessReport', 'Error', e)
-
-    document.getElementById('accessReportstatus').textContent = ''
+    document.getElementById('accessReportStatus').textContent = ''
     Util.errorHandler(e)
   }
 }
@@ -226,7 +225,7 @@ function downloadReport (href) {
   document.body.removeChild(a)
   $('#accessReportButton').one('click', accessReport)
 
-  document.getElementById('accessReportstatus').textContent = ''
+  document.getElementById('accessReportStatus').textContent = ''
 }
 
 function createCSV () {
@@ -361,9 +360,7 @@ function createCSV () {
               try {
                 value = Util.utcToExcel(value)
               } catch (e) {
-                ga('send', 'event', 'AccessReport', 'Error', e)
-
-                document.getElementById('accessReportstatus').textContent = ''
+                document.getElementById('accessReportStatus').textContent = ''
                 Util.errorHandler(e)
               }
               break
@@ -406,15 +403,3 @@ function createCSV () {
   }
   return data
 }
-
-/** Google analytics code start **/
-/* eslint-disable */
-window['GoogleAnalyticsObject'] = 'ga'
-window['ga'] = window['ga'] || function () {
-  (window['ga'].q = window['ga'].q || []).push(arguments)
-}, window['ga'].l = 1 * new Date()
-/* eslint-enable */
-
-ga('create', 'UA-72936301-1', 'auto')
-ga('set', 'checkProtocolTask', null) // Disable file protocol checking.
-/** Google analytics code end **/
