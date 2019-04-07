@@ -53,7 +53,12 @@ function populateCourseLists (url) {
   }
 
   if (COURSE_ID > 0) {
-    renderStatus('status', 'Course found on current page. Id: ' + COURSE_ID)
+    renderStatusText('status', 'Course found on current page. Id: ' + COURSE_ID)
+    const toolboxLink = document.createElement('a')
+    toolboxLink.setAttribute('href', `${HOST}/courses/${COURSE_ID}/external_tools/6950`)
+    toolboxLink.setAttribute('target', '_blank')
+    toolboxLink.textContent = 'View the UoA Toolbox for this course.'
+    document.getElementById('UoaToolboxRedir').appendChild(toolboxLink)
 
     // check user role for course
     roleXhr = new XMLHttpRequest()
@@ -277,10 +282,10 @@ function generateSectionList (sections) {
   })
   sectionListHeading.appendChild(allButton)
 
-  renderStatus('sectionListStatus', 'Sections loaded')
+  renderStatusText('sectionListStatus', 'Sections loaded')
 }
 
-function renderStatus (id, statusText) {
+function renderStatusText (id, statusText) {
   document.getElementById(id).textContent = statusText
 }
 
@@ -344,7 +349,7 @@ function appendGroupCategories () {
       groupCatListHeading.appendChild(div)
     })
 
-    renderStatus('groupCatListStatus', 'Group Categories loaded')
+    renderStatusText('groupCatListStatus', 'Group Categories loaded')
   }
 }
 
