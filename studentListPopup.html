@@ -35,11 +35,16 @@
       display: block;
     }
 
+    .notice-text {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
     .notice {
       padding: 1em;
+      vertical-align: middle;
       margin-top: 20px;
       margin-bottom: 20px;
-      vertical-align: middle;
       box-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
       border: 2px solid;
       border-radius: 6px;
@@ -59,7 +64,8 @@
   <p id="status">No course found on current page.</p>
 
   <div class="notice">
-    Did you know the <a href="https://superuoa.custhelp.com/app/answers/detail/a_id/9027" target="_blank">UoA Toolbox</a> is better than this extension at generating student lists?
+    <p class="notice-text">This extension should be considered superseded by <a href="https://superuoa.custhelp.com/app/answers/detail/a_id/9027" target="_blank">UoA Toolbox</a>.</p>
+    <p id="UoaToolboxRedir" class=""></p>
   </div>
 
   <div class="divheader" id="enrolmentHeading" hidden>
